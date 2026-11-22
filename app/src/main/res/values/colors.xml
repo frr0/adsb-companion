@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Revolut Light Mode Palette -->
+    <color name="rev_bg">#F7F8FA</color>
+    <color name="rev_surface">#FFFFFF</color>
+    <color name="rev_surface_secondary">#F0F2F5</color>
+    <color name="rev_surface_elevated">#FFFFFF</color>
+    <color name="rev_divider">#EBEEF2</color>
+
+    <!-- Brand Electric Blue -->
+    <color name="rev_blue">#0075EB</color>
+    <color name="rev_blue_pressed">#1968FF</color>
+    <color name="rev_blue_soft">#E6F1FD</color>
+
+    <!-- Text Hierarchy -->
+    <color name="rev_text_primary">#191C1F</color>
+    <color name="rev_text_secondary">#6B7280</color>
+    <color name="rev_text_tertiary">#9CA3AF</color>
+    <color name="rev_text_on_blue">#FFFFFF</color>
+
+    <!-- Semantic Accents -->
+    <color name="rev_green">#00A86B</color>
+    <color name="rev_green_soft">#E5F7F0</color>
+    <color name="rev_amber">#D97706</color>
+    <color name="rev_amber_soft">#FEF3C7</color>
+    <color name="rev_red">#E53935</color>
+    <color name="rev_red_soft">#FDECEC</color>
+    <color name="rev_purple">#7C3AED</color>
+    <color name="rev_purple_soft">#F3E8FF</color>
+
+    <!-- OLED & Console Terminal Surface -->
+    <color name="rev_terminal_bg">#12151A</color>
+    <color name="rev_terminal_text">#E2E8F0</color>
+    <color name="rev_terminal_muted">#94A3B8</color>
+    <color name="rev_terminal_accent">#38BDF8</color>
+
+    <!-- Legacy aliases kept for compatibility -->
+    <color name="primary">@color/rev_blue</color>
+    <color name="primary_dark">@color/rev_blue_pressed</color>
+    <color name="accent">@color/rev_green</color>
+    <color name="text_muted">@color/rev_text_secondary</color>
+</resources>

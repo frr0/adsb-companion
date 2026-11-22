@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.HeltecADSB" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/rev_blue</item>
+        <item name="colorPrimaryVariant">@color/rev_blue_pressed</item>
+        <item name="colorOnPrimary">@color/rev_text_on_blue</item>
+        <item name="colorSecondary">@color/rev_green</item>
+        <item name="android:colorBackground">@color/rev_bg</item>
+        <item name="android:statusBarColor">@color/rev_bg</item>
+        <item name="android:navigationBarColor">@color/rev_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+</resources>
