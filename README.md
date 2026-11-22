@@ -18,7 +18,7 @@ It connects over Bluetooth Low Energy (Nordic UART Service) to display live ADS-
 
 This app requires a Heltec V3 board flashed with the companion firmware:
 
-- Repository: [[https://github.com/frr0/sx1262-adsb](https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot)](https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot)
+- Repository: [https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot](https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot)
 
 ## Build
 
