@@ -1,6 +1,6 @@
 # Heltec ADS-B Companion
 
-Android companion application for the [sx1262-adsb](https://github.com/frr0/sx1262-adsb) firmware running on Heltec WiFi LoRa 32 V3 (ESP32-S3 + SX1262) boards.
+Android companion application for the [Heltec-v3_ADS-B_Meshcore-dualboot](https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot) firmware running on Heltec WiFi LoRa 32 V3 (ESP32-S3 + SX1262) boards.
 
 It connects over Bluetooth Low Energy (Nordic UART Service) to display live ADS-B flight telemetry, mirror the board's OLED screen, control radio tuning and hardware buttons remotely, and manage flash logs.
 
@@ -18,7 +18,7 @@ It connects over Bluetooth Low Energy (Nordic UART Service) to display live ADS-
 
 This app requires a Heltec V3 board flashed with the companion firmware:
 
-- Repository: [https://github.com/frr0/sx1262-adsb](https://github.com/frr0/sx1262-adsb)
+- Repository: [[https://github.com/frr0/sx1262-adsb](https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot)](https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot)
 
 ## Build
 
