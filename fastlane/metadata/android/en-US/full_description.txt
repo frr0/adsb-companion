@@ -1,0 +1,14 @@
+Android companion application for the Heltec WiFi LoRa 32 V3 (ESP32-S3 + SX1262) passive Mode S / ADS-B receiver firmware.
+
+Connects over Bluetooth Low Energy (Nordic UART Service) to receive live aircraft telemetry, keep a persistent local flight logbook, and remotely control the hardware board.
+
+Features:
+- Live ADS-B Flight Telemetry: Displays callsigns, ICAO hex addresses, barometric altitude, ground speed, GPS coordinates, and RF packet counters.
+- Background BLE Service & Alerts: Maintains the BLE connection in the background and fires configurable notifications for low-altitude (< 5,000 ft), military/government, or newly spotted aircraft.
+- Local Flight Logbook: Stores detected flights in SQLite with search, Today/GPS filters, sorting, Google/geo Maps integration, and CSV export.
+- Offline ICAO Aircraft Database: Optional one-time download of the open ICAO catalog to identify aircraft models, registrations, and operators 100% offline.
+- Heltec Battery Monitor: Displays live Heltec V3 battery percentage and voltage in the header and persistent notification.
+- Remote Hardware Control: Tune the SX1262 radio frequency (+/- 100 kHz, default 1089.80 MHz, persistent flash save), emulate physical PRG button actions (Tap, Hold, Double Click), browse board history, and dump/export flash logs.
+
+Requires a Heltec WiFi LoRa 32 V3 flashed with the companion firmware:
+https://github.com/frr0/Heltec-v3_ADS-B_Meshcore-dualboot

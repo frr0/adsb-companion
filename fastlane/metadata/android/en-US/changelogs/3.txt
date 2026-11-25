@@ -1,0 +1,3 @@
+- Added live Heltec V3 battery percentage badge in the top header (tap to view exact voltage).
+- Added Heltec battery percentage to the persistent background BLE notification.
+- Added parsing for bat= and vbat= telemetry fields from SXSTATUS updates.

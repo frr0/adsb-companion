@@ -1,0 +1,25 @@
+Categories:
+  - Connectivity
+  - System
+License: MIT
+AuthorName: Francesco Ranellucci
+SourceCode: https://github.com/frr0/adsb-companion
+IssueTracker: https://github.com/frr0/adsb-companion/issues
+
+AutoName: Heltec ADS-B
+
+RepoType: git
+Repo: https://github.com/frr0/adsb-companion.git
+
+Builds:
+  - versionName: 1.2.0
+    versionCode: 3
+    commit: v1.2.0
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.2.0
+CurrentVersionCode: 3
