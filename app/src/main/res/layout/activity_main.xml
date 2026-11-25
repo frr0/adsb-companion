@@ -17,26 +17,10 @@
         android:paddingEnd="20dp"
         android:paddingBottom="10dp">
 
-        <!-- Left Avatar / App Badge -->
-        <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_circle_blue">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:contentDescription="Heltec ADS-B"
-                android:src="@drawable/ic_plane"
-                app:tint="@color/rev_text_on_blue" />
-        </FrameLayout>
-
         <!-- Title & Live Connection Status -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:orientation="vertical">
@@ -76,7 +60,28 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Right Quick Action: Status Diagnostics -->
+        <!-- Right Quick Action 1: Sync Flights -->
+        <FrameLayout
+            android:id="@+id/btnHeaderSync"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_circle_surface"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
+
+            <ImageView
+                android:id="@+id/ivHeaderSync"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:contentDescription="Sync flights"
+                android:src="@drawable/ic_live"
+                app:tint="@color/rev_text_primary" />
+        </FrameLayout>
+
+        <!-- Right Quick Action 2: Status Diagnostics -->
         <FrameLayout
             android:id="@+id/btnHeaderStatus"
             android:layout_width="38dp"
@@ -96,7 +101,7 @@
                 app:tint="@color/rev_text_primary" />
         </FrameLayout>
 
-        <!-- Right Quick Action: BLE Connect -->
+        <!-- Right Quick Action 3: BLE Connect -->
         <FrameLayout
             android:id="@+id/btnHeaderConnect"
             android:layout_width="38dp"
@@ -124,7 +129,7 @@
         android:layout_weight="1">
 
         <!-- ========================================================= -->
-        <!-- TAB 1: HOME (Hero + Quick Actions + Telemetry + OLED)     -->
+        <!-- TAB 1: HOME (Unified Flight Card + Last 3 Aircraft)       -->
         <!-- ========================================================= -->
         <ScrollView
             android:id="@+id/tabHome"
@@ -143,564 +148,152 @@
                 android:paddingEnd="20dp"
                 android:paddingBottom="24dp">
 
-                <!-- Hero Flight / Balance-style Display -->
+                <!-- Compact Radio & Counts Strip above Live Deck -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="20dp">
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp">
 
                     <TextView
                         android:id="@+id/tvHeroFreqPill"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_pill_status"
                         android:fontFamily="sans-serif-medium"
                         android:fontFeatureSettings="tnum"
-                        android:paddingStart="12dp"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="12dp"
-                        android:paddingBottom="5dp"
                         android:text="1089.80 MHz · SX1262"
-                        android:textColor="@color/rev_text_secondary"
-                        android:textSize="12sp" />
+                        android:textColor="@color/rev_text_tertiary"
+                        android:textSize="11sp" />
 
                     <TextView
-                        android:id="@+id/tvCallsign"
+                        android:id="@+id/tvBurstCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:fontFamily="sans-serif-black"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_pill_status"
+                        android:backgroundTint="@color/rev_green_soft"
+                        android:fontFamily="sans-serif-medium"
                         android:fontFeatureSettings="tnum"
-                        android:gravity="center"
-                        android:letterSpacing="-0.02"
-                        android:text="NO FLIGHT"
-                        android:textColor="@color/rev_text_primary"
-                        android:textSize="36sp" />
+                        android:paddingStart="8dp"
+                        android:paddingTop="2dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="2dp"
+                        android:text="0 pkt"
+                        android:textColor="@color/rev_green"
+                        android:textSize="10sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
 
                     <TextView
-                        android:id="@+id/tvHeroSubtitle"
+                        android:id="@+id/tvHomeCountsSummary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-medium"
                         android:fontFeatureSettings="tnum"
-                        android:text="Waiting for ADS-B signals"
+                        android:text="0 today · 0 total"
+                        android:textColor="@color/rev_blue"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- 1. Swipeable Live Aircraft Card(s) Deck -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvLiveCards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never" />
+
+                <TextView
+                    android:id="@+id/tvLiveSwipeHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="14dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Swipe left or right to switch live aircraft"
+                    android:textColor="@color/rev_text_tertiary"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvBoardInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <!-- 2. Only Last 3 Recent Aircraft -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Recent aircraft"
                         android:textColor="@color/rev_text_secondary"
                         android:textSize="13sp" />
 
-                    <!-- Revolut Iconic 4 Circular Quick Actions -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/btnHomeSeeAllFlights"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:baselineAligned="false"
-                        android:orientation="horizontal"
-                        android:weightSum="4">
-
-                        <!-- Quick Action 1: Connect / Disconnect -->
-                        <LinearLayout
-                            android:id="@+id/btnConnect"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackgroundBorderless"
-                            android:gravity="center_horizontal"
-                            android:orientation="vertical">
-
-                            <FrameLayout
-                                android:id="@+id/circleConnect"
-                                android:layout_width="52dp"
-                                android:layout_height="52dp"
-                                android:background="@drawable/bg_circle_blue">
-
-                                <ImageView
-                                    android:id="@+id/ivConnectIcon"
-                                    android:layout_width="22dp"
-                                    android:layout_height="22dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Connect"
-                                    android:src="@drawable/ic_bluetooth"
-                                    app:tint="@color/rev_text_on_blue" />
-                            </FrameLayout>
-
-                            <TextView
-                                android:id="@+id/tvConnectLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:fontFamily="sans-serif-medium"
-                                android:gravity="center"
-                                android:maxLines="1"
-                                android:text="Connect"
-                                android:textColor="@color/rev_blue"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <!-- Quick Action 2: Live Mode -->
-                        <LinearLayout
-                            android:id="@+id/btnLiveMode"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackgroundBorderless"
-                            android:gravity="center_horizontal"
-                            android:orientation="vertical">
-
-                            <FrameLayout
-                                android:layout_width="52dp"
-                                android:layout_height="52dp"
-                                android:background="@drawable/bg_circle_blue_soft">
-
-                                <ImageView
-                                    android:layout_width="22dp"
-                                    android:layout_height="22dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Live"
-                                    android:src="@drawable/ic_live"
-                                    app:tint="@color/rev_blue" />
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:fontFamily="sans-serif-medium"
-                                android:gravity="center"
-                                android:maxLines="1"
-                                android:text="Live"
-                                android:textColor="@color/rev_text_primary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <!-- Quick Action 3: Previous Aircraft -->
-                        <LinearLayout
-                            android:id="@+id/btnPrevAircraft"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackgroundBorderless"
-                            android:gravity="center_horizontal"
-                            android:orientation="vertical">
-
-                            <FrameLayout
-                                android:layout_width="52dp"
-                                android:layout_height="52dp"
-                                android:background="@drawable/bg_circle_blue_soft">
-
-                                <ImageView
-                                    android:layout_width="22dp"
-                                    android:layout_height="22dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Previous"
-                                    android:src="@drawable/ic_prev"
-                                    app:tint="@color/rev_blue" />
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:fontFamily="sans-serif-medium"
-                                android:gravity="center"
-                                android:maxLines="1"
-                                android:text="Previous"
-                                android:textColor="@color/rev_text_primary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <!-- Quick Action 4: Board Status -->
-                        <LinearLayout
-                            android:id="@+id/btnStatus"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackgroundBorderless"
-                            android:gravity="center_horizontal"
-                            android:orientation="vertical">
-
-                            <FrameLayout
-                                android:layout_width="52dp"
-                                android:layout_height="52dp"
-                                android:background="@drawable/bg_circle_blue_soft">
-
-                                <ImageView
-                                    android:layout_width="22dp"
-                                    android:layout_height="22dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Status"
-                                    android:src="@drawable/ic_status"
-                                    app:tint="@color/rev_blue" />
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:fontFamily="sans-serif-medium"
-                                android:gravity="center"
-                                android:maxLines="1"
-                                android:text="Status"
-                                android:textColor="@color/rev_text_primary"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </LinearLayout>
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="sans-serif-medium"
+                        android:paddingStart="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="See all"
+                        android:textColor="@color/rev_blue"
+                        android:textSize="13sp" />
                 </LinearLayout>
 
-                <!-- Telemetry Activity Card -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvHomeRecent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardHomeEmptyRecent"
                     style="@style/RevolutCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
+                    android:visibility="gone">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="14dp"
-                            android:fontFamily="sans-serif-medium"
-                            android:text="Flight telemetry"
-                            android:textColor="@color/rev_text_secondary"
-                            android:textSize="13sp" />
-
-                        <!-- Row 1: Altitude -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="6dp"
-                            android:paddingBottom="12dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_amber">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Altitude"
-                                    android:src="@drawable/ic_altitude"
-                                    app:tint="@color/rev_amber" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Altitude"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="1dp"
-                                    android:text="Barometric ADS-B altitude"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/tvAltitude"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:fontFeatureSettings="tnum"
-                                android:text="--- ft"
-                                android:textColor="@color/rev_text_primary"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginStart="54dp"
-                            android:background="@color/rev_divider" />
-
-                        <!-- Row 2: Speed -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="12dp"
-                            android:paddingBottom="12dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_blue_soft">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Speed"
-                                    android:src="@drawable/ic_speed"
-                                    app:tint="@color/rev_blue" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Speed"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="1dp"
-                                    android:text="Reported ground speed"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/tvSpeed"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:fontFeatureSettings="tnum"
-                                android:text="--- kt"
-                                android:textColor="@color/rev_text_primary"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginStart="54dp"
-                            android:background="@color/rev_divider" />
-
-                        <!-- Row 3: Coordinates -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="12dp"
-                            android:paddingBottom="12dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_green">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Position"
-                                    android:src="@drawable/ic_location"
-                                    app:tint="@color/rev_green" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Position"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:id="@+id/tvCoords"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="1dp"
-                                    android:fontFeatureSettings="tnum"
-                                    android:text="Pos: ---.----°, ---.----°"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="GPS"
-                                android:textColor="@color/rev_green"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginStart="54dp"
-                            android:background="@color/rev_divider" />
-
-                        <!-- Row 4: Radio Hardware & Packets -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="12dp"
-                            android:paddingBottom="4dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_purple">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="SX1262 Radio"
-                                    android:src="@drawable/ic_radio"
-                                    app:tint="@color/rev_purple" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_marginEnd="8dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="SX1262 Radio"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:id="@+id/tvBoardInfo"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="1dp"
-                                    android:fontFeatureSettings="tnum"
-                                    android:text="Freq: 1089.8 MHz | Listening"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:id="@+id/tvBurstCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:fontFeatureSettings="tnum"
-                                android:text="0 pkt"
-                                android:textColor="@color/rev_green"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- OLED Live Replica Card -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/RevolutCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="Heltec V3 OLED Display"
-                                android:textColor="@color/rev_text_secondary"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_pill_status"
-                                android:fontFamily="sans-serif-medium"
-                                android:paddingStart="9dp"
-                                android:paddingTop="3dp"
-                                android:paddingEnd="9dp"
-                                android:paddingBottom="3dp"
-                                android:text="LIVE"
-                                android:textColor="@color/rev_blue"
-                                android:textSize="10sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvRawOled"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_oled_box"
-                            android:fontFamily="monospace"
-                            android:fontFeatureSettings="tnum"
-                            android:lineSpacingMultiplier="1.25"
-                            android:minHeight="76dp"
-                            android:padding="14dp"
-                            android:text="Waiting for signals..."
-                            android:textColor="@color/rev_terminal_text"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:gravity="center"
+                        android:padding="22dp"
+                        android:text="No aircraft spotted yet. Connect to your Heltec board to start tracking."
+                        android:textColor="@color/rev_text_secondary"
+                        android:textSize="13sp" />
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
         </ScrollView>
 
         <!-- ========================================================= -->
-        <!-- TAB 2: CONTROLS (Frequency Tuner + PRG + Navigation)      -->
+        <!-- TAB 3: SETTINGS (Radio Controls + Hardware + Logs)        -->
         <!-- ========================================================= -->
         <ScrollView
-            android:id="@+id/tabControls"
+            android:id="@+id/tabSettings"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
@@ -717,477 +310,164 @@
                 android:paddingEnd="20dp"
                 android:paddingBottom="24dp">
 
-                <!-- Frequency Tuner Hero Card -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/RevolutCard"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="14dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Settings"
+                    android:textColor="@color/rev_text_primary"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-medium"
-                            android:text="SX1262 frequency tuning"
-                            android:textColor="@color/rev_text_secondary"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/tvDialFreq"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="18dp"
-                            android:fontFamily="sans-serif-black"
-                            android:fontFeatureSettings="tnum"
-                            android:letterSpacing="-0.02"
-                            android:text="1089.80 MHz"
-                            android:textColor="@color/rev_text_primary"
-                            android:textSize="32sp" />
-
-                        <!-- Step Tuning Row -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
-                            android:orientation="horizontal"
-                            android:weightSum="2">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnTuneDown"
-                                style="@style/RevolutSecondaryButton"
-                                android:layout_width="0dp"
-                                android:layout_height="46dp"
-                                android:layout_marginEnd="6dp"
-                                android:layout_weight="1"
-                                android:fontFeatureSettings="tnum"
-                                android:text="-100 kHz"
-                                android:textSize="14sp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnTuneUp"
-                                style="@style/RevolutSecondaryButton"
-                                android:layout_width="0dp"
-                                android:layout_height="46dp"
-                                android:layout_marginStart="6dp"
-                                android:layout_weight="1"
-                                android:fontFeatureSettings="tnum"
-                                android:text="+100 kHz"
-                                android:textSize="14sp" />
-                        </LinearLayout>
-
-                        <!-- Default & Save Flash Row -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="2">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnFreqDefault"
-                                style="@style/RevolutPillButton"
-                                android:layout_width="0dp"
-                                android:layout_height="46dp"
-                                android:layout_marginEnd="6dp"
-                                android:layout_weight="1"
-                                android:fontFeatureSettings="tnum"
-                                android:text="1089.8 MHz"
-                                android:textColor="@color/rev_blue"
-                                android:textSize="13sp"
-                                app:backgroundTint="@color/rev_blue_soft" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnSaveDial"
-                                style="@style/RevolutPrimaryButton"
-                                android:layout_width="0dp"
-                                android:layout_height="46dp"
-                                android:layout_marginStart="6dp"
-                                android:layout_weight="1"
-                                android:text="Save to Flash"
-                                android:textSize="13sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Physical PRG Button Emulation Card -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/RevolutCard"
-                    android:layout_width="match_parent"
+                <!-- SECTION 0: ALERTS & BACKGROUND NOTIFICATIONS -->
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <FrameLayout
-                                android:layout_width="38dp"
-                                android:layout_height="38dp"
-                                android:background="@drawable/bg_circle_blue_soft">
-
-                                <ImageView
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="PRG Button"
-                                    android:src="@drawable/ic_touch"
-                                    app:tint="@color/rev_blue" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="PRG Button Emulation"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Remote trigger for the physical board button"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="3">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnTap"
-                                style="@style/RevolutSecondaryButton"
-                                android:layout_width="0dp"
-                                android:layout_height="44dp"
-                                android:layout_marginEnd="5dp"
-                                android:layout_weight="1"
-                                android:text="Tap"
-                                android:textSize="13sp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnHold"
-                                style="@style/RevolutSecondaryButton"
-                                android:layout_width="0dp"
-                                android:layout_height="44dp"
-                                android:layout_marginStart="5dp"
-                                android:layout_marginEnd="5dp"
-                                android:layout_weight="1"
-                                android:text="Hold"
-                                android:textSize="13sp" />
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnDouble"
-                                style="@style/RevolutSecondaryButton"
-                                android:layout_width="0dp"
-                                android:layout_height="44dp"
-                                android:layout_marginStart="5dp"
-                                android:layout_weight="1"
-                                android:paddingStart="4dp"
-                                android:paddingEnd="4dp"
-                                android:text="Double Click"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Aircraft Navigation & Hardware Actions Card -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/RevolutCard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:fontFamily="sans-serif-medium"
-                            android:text="Air traffic and diagnostics"
-                            android:textColor="@color/rev_text_secondary"
-                            android:textSize="13sp" />
-
-                        <!-- Row: Previous Aircraft -->
-                        <LinearLayout
-                            android:id="@+id/rowPrevAircraft"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_blue_soft">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Previous"
-                                    android:src="@drawable/ic_prev"
-                                    app:tint="@color/rev_blue" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Previous aircraft"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Step through stored flight history"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginStart="54dp"
-                            android:background="@color/rev_divider" />
-
-                        <!-- Row: Live Mode -->
-                        <LinearLayout
-                            android:id="@+id/rowLiveMode"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_green">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Live"
-                                    android:src="@drawable/ic_live"
-                                    app:tint="@color/rev_green" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Live mode"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Return to real-time tracking"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginStart="54dp"
-                            android:background="@color/rev_divider" />
-
-                        <!-- Row: Status Diagnostics -->
-                        <LinearLayout
-                            android:id="@+id/rowStatus"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_purple">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Board status"
-                                    android:src="@drawable/ic_status"
-                                    app:tint="@color/rev_purple" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Query board status"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Refresh frequency, radio state, and RF packets"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginStart="54dp"
-                            android:background="@color/rev_divider" />
-
-                        <!-- Row: Clear History -->
-                        <LinearLayout
-                            android:id="@+id/btnClearHistory"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="4dp">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_red">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="Clear history"
-                                    android:src="@drawable/ic_delete"
-                                    app:tint="@color/rev_red" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="14dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:text="Clear history"
-                                    android:textColor="@color/rev_red"
-                                    android:textSize="15sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Erase aircraft history stored on the board"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="12sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-        </ScrollView>
-
-        <!-- ========================================================= -->
-        <!-- TAB 3: LOGS & FLASH MEMORY                                -->
-        <!-- ========================================================= -->
-        <LinearLayout
-            android:id="@+id/tabLogs"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="16dp"
-            android:visibility="gone">
-
-            <!-- Log Stats & Actions Card -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/RevolutCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp">
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="AIRCRAFT ALERTS (BACKGROUND)"
+                    android:textColor="@color/rev_text_tertiary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    android:background="@drawable/bg_hero_card"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:paddingStart="18dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="18dp"
+                    android:paddingBottom="12dp">
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/swAlertLowAlt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Low altitude (&lt; 5,000 ft)"
+                        android:textColor="@color/rev_text_primary"
+                        android:textSize="14sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/rev_divider" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/swAlertGovMil"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Military / Police / Gov"
+                        android:textColor="@color/rev_text_primary"
+                        android:textSize="14sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/rev_divider" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/swAlertAll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Notify on every new aircraft"
+                        android:textColor="@color/rev_text_primary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- SECTION 0.5: OFFLINE AIRCRAFT DATABASE -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="OFFLINE AIRCRAFT DATABASE"
+                    android:textColor="@color/rev_text_tertiary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    android:background="@drawable/bg_hero_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="ICAO Aircraft Models"
+                        android:textColor="@color/rev_text_primary"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tvAircraftDbStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFeatureSettings="tnum"
+                        android:text="Not downloaded · ~10 MB one-time download"
+                        android:textColor="@color/rev_text_secondary"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDownloadAircraftDb"
+                            style="@style/RevolutPrimaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="2"
+                            android:minHeight="38dp"
+                            android:text="Download Offline DB"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDeleteAircraftDb"
+                            style="@style/RevolutPillButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:text="Delete"
+                            android:textColor="@color/rev_red"
+                            android:textSize="12sp"
+                            app:backgroundTint="@color/rev_red_soft" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- SECTION 1: RADIO TUNER -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="RADIO TUNING"
+                    android:textColor="@color/rev_text_tertiary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    android:background="@drawable/bg_hero_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -1202,80 +482,119 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/tvDialFreq"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="Logs and Flash memory"
+                                android:fontFamily="sans-serif-black"
+                                android:fontFeatureSettings="tnum"
+                                android:letterSpacing="-0.02"
+                                android:text="1089.80 MHz"
+                                android:textColor="@color/rev_text_primary"
+                                android:textSize="24sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="SX1262 receiver · default 1089.80 MHz"
                                 android:textColor="@color/rev_text_secondary"
-                                android:textSize="13sp" />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:gravity="bottom"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:id="@+id/tvLogCountHero"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-black"
-                                    android:fontFeatureSettings="tnum"
-                                    android:text="0"
-                                    android:textColor="@color/rev_text_primary"
-                                    android:textSize="32sp" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="6dp"
-                                    android:layout_marginBottom="5dp"
-                                    android:text="lines"
-                                    android:textColor="@color/rev_text_secondary"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
+                                android:textSize="12sp" />
                         </LinearLayout>
 
-                        <TextView
-                            android:id="@+id/tvStreamBadge"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSaveDial"
+                            style="@style/RevolutPrimaryButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_status"
-                            android:fontFamily="sans-serif-medium"
-                            android:paddingStart="12dp"
-                            android:paddingTop="5dp"
-                            android:paddingEnd="12dp"
-                            android:paddingBottom="5dp"
-                            android:text="STREAM OFF"
-                            android:textColor="@color/rev_text_secondary"
-                            android:textSize="11sp" />
+                            android:layout_height="36dp"
+                            android:minHeight="36dp"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:text="Save"
+                            android:textSize="12sp" />
                     </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tvLogStats"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="14dp"
-                        android:fontFeatureSettings="tnum"
-                        android:text="Stored logs: 0 lines | Live Stream: OFF (Default)"
+                        android:layout_marginTop="14dp"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTuneDown"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:fontFeatureSettings="tnum"
+                            android:minHeight="38dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="-100 kHz"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTuneUp"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:fontFeatureSettings="tnum"
+                            android:minHeight="38dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="+100 kHz"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFreqDefault"
+                            style="@style/RevolutPillButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="Reset"
+                            android:textColor="@color/rev_blue"
+                            android:textSize="12sp"
+                            app:backgroundTint="@color/rev_blue_soft" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- SECTION 2: HELTEC HARDWARE CONTROLS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="HELTEC BOARD"
+                    android:textColor="@color/rev_text_tertiary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="18dp"
+                    android:background="@drawable/bg_hero_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <!-- PRG Button Row -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="PRG button emulation"
                         android:textColor="@color/rev_text_secondary"
                         android:textSize="12sp" />
 
-                    <!-- Prominent Live Stream Acquisition Toggle -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnToggleStream"
-                        style="@style/RevolutPillButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="46dp"
-                        android:layout_marginBottom="14dp"
-                        android:text="Log Acquisition: OFF (Tap to Enable)"
-                        android:textColor="@color/rev_text_primary"
-                        android:textSize="13sp"
-                        app:backgroundTint="@color/rev_surface_secondary" />
-
-                    <!-- 3 Log Action Pills -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -1283,28 +602,245 @@
                         android:weightSum="3">
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTap"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:text="Tap"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnHold"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:text="Hold"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDouble"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:text="Double"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="14dp"
+                        android:background="@color/rev_divider" />
+
+                    <!-- Board Display & Diagnostics Row -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Board display &amp; diagnostics"
+                        android:textColor="@color/rev_text_secondary"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/rowLiveMode"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:text="Live"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/rowPrevAircraft"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:text="Previous"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/rowStatus"
+                            style="@style/RevolutSecondaryButton"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="1"
+                            android:minHeight="38dp"
+                            android:text="Status"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@color/rev_divider" />
+
+                    <!-- Clear Board Flash History Row -->
+                    <LinearLayout
+                        android:id="@+id/btnClearHistory"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="2dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:contentDescription="Clear board memory"
+                            android:src="@drawable/ic_delete"
+                            app:tint="@color/rev_red" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="Clear board flash history"
+                            android:textColor="@color/rev_red"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- SECTION 3: LOGS & SERIAL CONSOLE -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="LOGS &amp; CONSOLE"
+                    android:textColor="@color/rev_text_tertiary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_hero_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvLogCountHero"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-black"
+                            android:fontFeatureSettings="tnum"
+                            android:text="0"
+                            android:textColor="@color/rev_text_primary"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:text="log lines"
+                            android:textColor="@color/rev_text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tvStreamBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_status"
+                            android:fontFamily="sans-serif-medium"
+                            android:paddingStart="10dp"
+                            android:paddingTop="4dp"
+                            android:paddingEnd="10dp"
+                            android:paddingBottom="4dp"
+                            android:text="STREAM OFF"
+                            android:textColor="@color/rev_text_secondary"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvLogStats"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnToggleStream"
+                        style="@style/RevolutSecondaryButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="12dp"
+                        android:minHeight="40dp"
+                        android:text="Log Acquisition: OFF (Tap to Enable)"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
+
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnDump"
                             style="@style/RevolutPrimaryButton"
                             android:layout_width="0dp"
-                            android:layout_height="42dp"
+                            android:layout_height="38dp"
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:text="Dump Flash"
+                            android:minHeight="38dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="Dump"
                             android:textSize="12sp" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnSaveFile"
                             style="@style/RevolutPillButton"
                             android:layout_width="0dp"
-                            android:layout_height="42dp"
+                            android:layout_height="38dp"
                             android:layout_marginStart="5dp"
                             android:layout_marginEnd="5dp"
                             android:layout_weight="1"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:text="Save File"
+                            android:minHeight="38dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
+                            android:text="Save TXT"
                             android:textColor="@color/rev_green"
                             android:textSize="12sp"
                             app:backgroundTint="@color/rev_green_soft" />
@@ -1313,47 +849,24 @@
                             android:id="@+id/btnClear"
                             style="@style/RevolutPillButton"
                             android:layout_width="0dp"
-                            android:layout_height="42dp"
+                            android:layout_height="38dp"
                             android:layout_marginStart="5dp"
                             android:layout_weight="1"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
+                            android:minHeight="38dp"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="4dp"
                             android:text="Clear"
                             android:textColor="@color/rev_red"
                             android:textSize="12sp"
                             app:backgroundTint="@color/rev_red_soft" />
                     </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Scrollable Log Console Card (fills remaining height cleanly) -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/RevolutCard"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Serial console"
-                        android:textColor="@color/rev_text_secondary"
-                        android:textSize="13sp" />
 
                     <ScrollView
                         android:id="@+id/scrollLogs"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_height="220dp"
                         android:background="@drawable/bg_oled_box"
+                        android:nestedScrollingEnabled="true"
                         android:padding="12dp">
 
                         <TextView
@@ -1363,12 +876,228 @@
                             android:fontFamily="monospace"
                             android:fontFeatureSettings="tnum"
                             android:lineSpacingMultiplier="1.2"
-                            android:text="Live log acquisition is disabled by default. Enable it above for real-time logs or tap Dump Flash to read stored history."
+                            android:text="Live log acquisition is disabled by default. Enable it above for real-time logs or tap Dump to read flash history."
                             android:textColor="@color/rev_terminal_muted"
                             android:textSize="11sp" />
                     </ScrollView>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ========================================================= -->
+        <!-- TAB 4: FLIGHTS (Detected Flights History & Search)        -->
+        <!-- ========================================================= -->
+        <LinearLayout
+            android:id="@+id/tabFlights"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+
+            <!-- Clean Compact Header, Search & Filter Chips -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical">
+
+                <!-- Title + Count + 2 Compact Icon Actions (Sync & More Menu) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingBottom="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="Flights"
+                        android:textColor="@color/rev_text_primary"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvFlightsCountBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_pill_status"
+                        android:fontFamily="sans-serif-medium"
+                        android:fontFeatureSettings="tnum"
+                        android:paddingStart="9dp"
+                        android:paddingTop="3dp"
+                        android:paddingEnd="9dp"
+                        android:paddingBottom="3dp"
+                        android:text="0"
+                        android:textColor="@color/rev_blue"
+                        android:textSize="11sp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <!-- Compact Overflow Menu Button (Export CSV / Clear) -->
+                    <FrameLayout
+                        android:id="@+id/btnFlightsMenu"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_circle_surface"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center"
+                            android:contentDescription="More options"
+                            android:src="@drawable/ic_more"
+                            app:tint="@color/rev_text_primary" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <!-- Search Input -->
+                <EditText
+                    android:id="@+id/etFlightSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:background="@drawable/bg_pill_status"
+                    android:backgroundTint="@color/rev_surface"
+                    android:hint="Search callsign or ICAO..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textColor="@color/rev_text_primary"
+                    android:textColorHint="@color/rev_text_tertiary"
+                    android:textSize="14sp" />
+
+                <!-- Sleek Compact Filter & Sort Chips -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/btnFilterToday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_pill_status"
+                            android:backgroundTint="@color/rev_surface"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:fontFamily="sans-serif-medium"
+                            android:gravity="center"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            android:text="Today"
+                            android:textColor="@color/rev_text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/btnFilterGps"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_pill_status"
+                            android:backgroundTint="@color/rev_surface"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:fontFamily="sans-serif-medium"
+                            android:gravity="center"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            android:text="With GPS"
+                            android:textColor="@color/rev_text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/btnSortFlights"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_pill_status"
+                            android:backgroundTint="@color/rev_surface"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:fontFamily="sans-serif-medium"
+                            android:gravity="center"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            android:text="Sort: Recent ▾"
+                            android:textColor="@color/rev_text_primary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <!-- Flights List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFlights"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp" />
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/layoutEmptyFlights"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <FrameLayout
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_circle_blue_soft">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="No flights"
+                        android:src="@drawable/ic_plane"
+                        app:tint="@color/rev_blue" />
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="No flights recorded yet"
+                    android:textColor="@color/rev_text_primary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Connect to your Heltec ADS-B board. Detected aircraft will be saved here automatically."
+                    android:textColor="@color/rev_text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 

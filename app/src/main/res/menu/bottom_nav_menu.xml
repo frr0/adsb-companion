@@ -5,11 +5,11 @@
         android:icon="@drawable/ic_home"
         android:title="Home" />
     <item
-        android:id="@+id/nav_controls"
-        android:icon="@drawable/ic_tune"
-        android:title="Controls" />
+        android:id="@+id/nav_flights"
+        android:icon="@drawable/ic_plane"
+        android:title="Flights" />
     <item
-        android:id="@+id/nav_logs"
-        android:icon="@drawable/ic_logs"
-        android:title="Logs" />
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_tune"
+        android:title="Settings" />
 </menu>

@@ -29,3 +29,7 @@ Requires Android SDK (API 34) and JDK 17.
 ```
 
 The debug APK is generated at `app/build/outputs/apk/debug/app-debug.apk`.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
