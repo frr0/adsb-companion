@@ -75,7 +75,7 @@ public class AdsbBleService extends Service {
 
     public interface Listener {
         void onConnectionStateChanged(boolean connected, boolean scanning, boolean connecting, String statusText);
-        void onStatusUpdate(long dialHz, long bursts, boolean ready);
+        void onStatusUpdate(long dialHz, long bursts, boolean ready, int batteryPct, int batteryMv);
         void onFlightsUpdated();
         void onLogLine(String line);
         void onBoardMessage(String message);
@@ -106,6 +106,8 @@ public class AdsbBleService extends Service {
     private long currentDialHz = 1089800000L;
     private long lastBursts = 0L;
     private boolean lastReady = false;
+    private int lastBatteryPct = -1;
+    private int lastBatteryMv = -1;
     private String lastNotifFlightSummary = "Listening for aircraft...";
 
     private final Queue<String> bleWriteQueue = new ArrayDeque<>();
@@ -179,7 +181,7 @@ public class AdsbBleService extends Service {
         this.listener = l;
         if (l != null) {
             l.onConnectionStateChanged(isConnected, isScanning, isConnecting, statusText);
-            l.onStatusUpdate(currentDialHz, lastBursts, lastReady);
+            l.onStatusUpdate(currentDialHz, lastBursts, lastReady, lastBatteryPct, lastBatteryMv);
         }
     }
 
@@ -248,6 +250,8 @@ public class AdsbBleService extends Service {
         isConnected = false;
         isConnecting = false;
         isScanning = false;
+        lastBatteryPct = -1;
+        lastBatteryMv = -1;
         updateStatus("Status: Disconnected");
         stopForegroundCompat();
         stopSelf();
@@ -385,6 +389,8 @@ public class AdsbBleService extends Service {
                 boolean wasError = (status != BluetoothGatt.GATT_SUCCESS);
                 isConnected = false;
                 isConnecting = false;
+                lastBatteryPct = -1;
+                lastBatteryMv = -1;
                 mainHandler.post(() -> {
                     if (bluetoothGatt == gatt) {
                         closeGattInternal();
@@ -506,11 +512,15 @@ public class AdsbBleService extends Service {
             long bursts = extractParam(line, "bursts=");
             long dial = extractParam(line, "dial=");
             long ready = extractParam(line, "ready=");
+            int batPct = (int) extractOptionalParam(line, "bat=", lastBatteryPct);
+            int batMv = (int) extractOptionalParam(line, "vbat=", lastBatteryMv);
             if (dial > 0) currentDialHz = dial;
             lastBursts = bursts;
             lastReady = (ready == 1);
+            lastBatteryPct = batPct;
+            lastBatteryMv = batMv;
             if (listener != null) {
-                listener.onStatusUpdate(currentDialHz, lastBursts, lastReady);
+                listener.onStatusUpdate(currentDialHz, lastBursts, lastReady, lastBatteryPct, lastBatteryMv);
             }
             updateServiceNotification();
         } else if (line.startsWith("SXMSG ")) {
@@ -832,8 +842,11 @@ public class AdsbBleService extends Service {
                 new Intent(this, AdsbBleService.class).setAction(ACTION_DISCONNECT),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        String batSuffix = (lastBatteryPct >= 0)
+                ? String.format(Locale.getDefault(), " · %d%%", lastBatteryPct)
+                : "";
         String title = isConnected
-                ? String.format(Locale.getDefault(), "Heltec ADS-B · %.2f MHz", currentDialHz / 1e6)
+                ? String.format(Locale.getDefault(), "Heltec ADS-B · %.2f MHz%s", currentDialHz / 1e6, batSuffix)
                 : (isScanning ? "Heltec ADS-B · Scanning..." : "Heltec ADS-B · Connecting...");
 
         return new NotificationCompat.Builder(this, CHANNEL_SERVICE)
@@ -889,14 +902,18 @@ public class AdsbBleService extends Service {
     }
 
     private long extractParam(String line, String key) {
+        return extractOptionalParam(line, key, 0L);
+    }
+
+    private long extractOptionalParam(String line, String key, long defaultVal) {
         int idx = line.indexOf(key);
-        if (idx == -1) return 0;
+        if (idx == -1) return defaultVal;
         int end = line.indexOf(' ', idx);
         if (end == -1) end = line.length();
         try {
             return Long.parseLong(line.substring(idx + key.length(), end).trim());
         } catch (Exception e) {
-            return 0;
+            return defaultVal;
         }
     }
 

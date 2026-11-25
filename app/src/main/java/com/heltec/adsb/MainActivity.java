@@ -32,6 +32,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,7 +70,9 @@ public class MainActivity extends AppCompatActivity implements AdsbBleService.Li
     private View statusDot;
     private View btnHeaderSync, btnHeaderStatus, btnHeaderConnect;
     private ImageView ivHeaderSync, ivHeaderConnect;
-    private TextView tvStatus;
+    private TextView tvStatus, tvBatteryPill;
+    private int lastBatteryPct = -1;
+    private int lastBatteryMv = -1;
 
     // Home Dashboard UI
     private TextView tvHeroFreqPill, tvBoardInfo, tvBurstCount;
@@ -158,6 +161,15 @@ public class MainActivity extends AppCompatActivity implements AdsbBleService.Li
         btnHeaderSync.setOnClickListener(v -> {
             if (bleService != null) bleService.syncFlightsFromBoard(true);
             else Toast.makeText(this, "Connect to the Heltec board first", Toast.LENGTH_SHORT).show();
+        });
+
+        tvBatteryPill.setOnClickListener(v -> {
+            if (lastBatteryPct >= 0) {
+                String msg = lastBatteryMv > 0
+                        ? String.format(Locale.getDefault(), "Heltec battery: %d%% (%.2f V)", lastBatteryPct, lastBatteryMv / 1000.0)
+                        : String.format(Locale.getDefault(), "Heltec battery: %d%%", lastBatteryPct);
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            }
         });
 
         // Hardware & PRG controls
@@ -264,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements AdsbBleService.Li
         btnHeaderConnect = findViewById(R.id.btnHeaderConnect);
         ivHeaderConnect = findViewById(R.id.ivHeaderConnect);
         tvStatus = findViewById(R.id.tvStatus);
+        tvBatteryPill = findViewById(R.id.tvBatteryPill);
 
         tvHeroFreqPill = findViewById(R.id.tvHeroFreqPill);
         tvBoardInfo = findViewById(R.id.tvBoardInfo);
@@ -917,19 +930,52 @@ public class MainActivity extends AppCompatActivity implements AdsbBleService.Li
         isScanning = scanning;
         isConnecting = connecting;
         tvStatus.setText(statusText);
+        if (!connected) {
+            lastBatteryPct = -1;
+            lastBatteryMv = -1;
+            updateBatteryUI();
+        }
         updateConnectionUI();
     }
 
     @Override
-    public void onStatusUpdate(long dialHz, long bursts, boolean ready) {
+    public void onStatusUpdate(long dialHz, long bursts, boolean ready, int batteryPct, int batteryMv) {
         if (dialHz > 0) {
             currentDialHz = dialHz;
             updateFrequencyDisplays();
         }
+        lastBatteryPct = batteryPct;
+        lastBatteryMv = batteryMv;
+        updateBatteryUI();
         tvBoardInfo.setText(String.format(Locale.getDefault(),
                 "%.2f MHz · %s", currentDialHz / 1e6, ready ? "Radio Ready" : "Radio Init"));
         tvBurstCount.setText(String.format(Locale.getDefault(), "%d pkt", bursts));
         tvBurstCount.setTextColor(ContextCompat.getColor(this, ready ? R.color.rev_green : R.color.rev_amber));
+    }
+
+    private void updateBatteryUI() {
+        if (!isConnected || lastBatteryPct < 0) {
+            tvBatteryPill.setVisibility(View.GONE);
+            return;
+        }
+        tvBatteryPill.setVisibility(View.VISIBLE);
+        tvBatteryPill.setText(String.format(Locale.getDefault(), "%d%%", lastBatteryPct));
+        int fgRes, bgRes;
+        if (lastBatteryPct >= 50) {
+            fgRes = R.color.rev_green;
+            bgRes = R.color.rev_green_soft;
+        } else if (lastBatteryPct >= 20) {
+            fgRes = R.color.rev_amber;
+            bgRes = R.color.rev_amber_soft;
+        } else {
+            fgRes = R.color.rev_red;
+            bgRes = R.color.rev_red_soft;
+        }
+        int fg = ContextCompat.getColor(this, fgRes);
+        int bg = ContextCompat.getColor(this, bgRes);
+        tvBatteryPill.setTextColor(fg);
+        tvBatteryPill.setBackgroundTintList(ColorStateList.valueOf(bg));
+        TextViewCompat.setCompoundDrawableTintList(tvBatteryPill, ColorStateList.valueOf(fg));
     }
 
     @Override
